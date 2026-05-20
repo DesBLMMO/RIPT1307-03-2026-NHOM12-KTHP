@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// 1. Tài khoản người dùng
+model User {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String   @unique
+  password      String   
+  coins         Int      @default(170)
+  targetExam    String?  
+  voiceLang     String   @default("us")
+  createdAt     DateTime @default(now())
+  coverImage    String   @default("https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&q=80&w=800")
+  streakCount   Int      @default(0)
+  streakHistory Int[]
+  isPro         Boolean   @default(false)
+  proExpiresAt  DateTime?
+  voice      String?  @default("auto")
+  language   String?  @default("gb")
+  reminder   Boolean? @default(true)
+  purchasedItems String[] @default([])
+  equippedItems  Json?
+  sentStreaks     SharedStreak[] @relation("SentStreaks")
+  receivedStreaks SharedStreak[] @relation("ReceivedStreaks")
+  role        String   @default("USER")
+  
+  progress      SrsProgress[]
+  items         UserItem[]
+  
+}
+
+// 2. Bộ từ vựng & Từ vựng
+model VocabSet {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  description   String?
+  isPremium   Boolean  @default(false) // true: Chỉ tài khoản PRO mới học được | false: Miễn phí
+  words         Word[]
+  category      String   @default("Tất cả") // Ví dụ: "THPT", "IELTS", "TOEIC"
+  difficulty    Int      @default(1)       // Độ khó từ 1 đến 5
+  emoji       String?  @default("📚")
+  emojiBg     String?  @default("#f1f5f9")
+  createdAt   DateTime? @default(now())
+
+  
+}
+
+model Word {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  setId         String   @db.ObjectId 
+  word          String
+  meaning       String
+  phonetic      String?
+  type          String?  
+  exampleEn     String?
+  exampleVi     String?
+
+  set           VocabSet @relation(fields: [setId], references: [id])
+  srsProgress   SrsProgress[]
+}
+
+// 3. Tiến độ ôn tập ngắt quãng (SRS)
+model SrsProgress {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
+  wordId       String   @db.ObjectId
+  level        Int      @default(0)      // Cấp độ từ 0 - 5
+  isLearned    Boolean  @default(false)  // Đã thuộc hay chưa
+  nextReviewAt DateTime? @default(now())  // Thời gian đến hạn ôn tập tiếp theo
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word         Word     @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, wordId])
+}
+
+// 4. Vật phẩm cửa hàng đã mua
+model UserItem {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @db.ObjectId
+  itemId        String   
+  isEquipped    Boolean  @default(false)
+
+  user          User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, itemId])
+}
+
+// 5. Chuỗi chung
+model SharedStreak {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  senderId    String   @db.ObjectId
+  receiverId  String   @db.ObjectId
+  status      String   @default("PENDING") // PENDING (Chờ duyệt), ACCEPTED (Đã kết bạn)
+  streakCount Int      @default(0)
+  lastUpdated DateTime @default(now())
+
+  // Liên kết 2 chiều
+  sender      User     @relation("SentStreaks", fields: [senderId], references: [id])
+  receiver    User     @relation("ReceivedStreaks", fields: [receiverId], references: [id])
+
+  @@unique([senderId, receiverId])
+}
