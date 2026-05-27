@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react'; 
 import { useVocabWords } from '@/hooks/useVocabWords';
+import { DailyQuest } from '@/components/daily-quest';
 import { 
   Box, Flex, Grid, GridItem, Image as ChakraImage, SimpleGrid, Text, 
   HStack, VStack, Button, Spinner, Center
@@ -420,6 +421,11 @@ export default function HomePage() {
             )
           })}
         </SimpleGrid>
+      </Box>
+
+      {/* DAILY QUEST */}
+      <Box mb={8} w="full">
+        <DailyQuest />
       </Box>
 
       {/* SECTION 3: LỘ TRÌNH HỌC */}

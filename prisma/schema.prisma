@@ -33,6 +33,8 @@ model User {
   
   progress      SrsProgress[]
   items         UserItem[]
+  dailyQuests DailyQuest[]
+  badges      Badge[]
   
 }
 
@@ -109,4 +111,24 @@ model SharedStreak {
   receiver    User     @relation("ReceivedStreaks", fields: [receiverId], references: [id])
 
   @@unique([senderId, receiverId])
+}
+model DailyQuest {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id])
+  date        DateTime
+  questType   String
+  target      Int
+  current     Int      @default(0)
+  isCompleted Boolean  @default(false)
+  rewardCoins Int      @default(10)
+  createdAt   DateTime @default(now())
+}
+
+model Badge {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  badgeType String
+  earnedAt  DateTime @default(now())
 }
