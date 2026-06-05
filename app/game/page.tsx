@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   Box, SimpleGrid, Flex, Text, HStack, Button, Input, 
@@ -1103,7 +1103,7 @@ const QuizGame = ({ words, onFinish }: { words: any[], onFinish: (res: any) => v
 // ==========================================
 // COMPONENT CHÍNH: GAME PAGE VÀ MODAL SRS
 // ==========================================
-export default function GamePage() {
+function GamePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -1511,5 +1511,19 @@ export default function GamePage() {
         }
       `}} />
     </Box>
+  );
+}
+export default function GamePage() {
+  return (
+    <Suspense 
+      fallback={
+        <Flex w="100vw" h="100vh" align="center" justify="center" bg="#f8f9fa" direction="column" gap={4}>
+          <Spinner size="xl" color="#58cc02" thickness="4px" />
+          <Text fontWeight="bold" color="gray.500">Đang chuẩn bị phòng game...</Text>
+        </Flex>
+      }
+    >
+      <GamePageContent />
+    </Suspense>
   );
 }
