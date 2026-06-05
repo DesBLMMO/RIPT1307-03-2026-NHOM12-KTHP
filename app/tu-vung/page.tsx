@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   Box, Flex, SimpleGrid, Text, HStack, Input, Button, Grid, VStack, Spinner, Textarea
@@ -16,7 +16,7 @@ import { useVocabSets } from '@/hooks/useVocabSets';
 import { vocabWordService } from '@/lib/services/vocabWordService';
 import { vocabSetService } from '@/lib/services/vocabSetService';
 
-export default function TuVungPage() {
+function TuVungContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -521,5 +521,12 @@ export default function TuVungPage() {
         </Flex>
       )}
     </Box>
+  );
+}
+export default function TuVungPage() {
+  return (
+    <Suspense fallback={<div>Đang tải dữ liệu...</div>}>
+      <TuVungContent />
+    </Suspense>
   );
 }

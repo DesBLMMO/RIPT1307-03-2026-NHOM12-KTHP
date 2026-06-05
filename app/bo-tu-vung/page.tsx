@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Flex, Box, Text, HStack, SimpleGrid, Button, Grid, Input, Spinner, Textarea, Center 
@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { useVocabSets } from '@/hooks/useVocabSets';
 
-// Danh sách các biểu tượng cho form tạo mới/chỉnh sửa
 const emojiOptions = [
   { icon: '📚', bg: '#f1f5f9' }, { icon: '📖', bg: '#eff6ff' }, 
   { icon: '📝', bg: '#f3e8ff' }, { icon: '✏️', bg: '#ffedd5' }, 
@@ -30,30 +29,24 @@ export const playAudio = (text: string) => {
   }
 };
 
-export default function BoTuVungPage() {
+function BoTuVungContent() {
   const router = useRouter();
   
-  // Dùng Custom Hook thay vì State tĩnh
   const { sets, isLoading, addSet, editSet, removeSet } = useVocabSets();
 
-  // States quản lý Modal
   const [isViewOpen, setIsViewOpen] = useState(false); 
   const [isCreateOpen, setIsCreateOpen] = useState(false); 
   const [isEditOpen, setIsEditOpen] = useState(false);
   
-  // State quản lý bộ từ đang được xem chi tiết
   const [viewingSet, setViewingSet] = useState<any>(null);
 
-  // STATE: Lưu danh sách từ vựng thật từ Backend
   const [viewWords, setViewWords] = useState<any[]>([]);
   const [isLoadingWords, setIsLoadingWords] = useState(false);
 
-  // States cho Form tạo mới
   const [selectedEmoji, setSelectedEmoji] = useState('📚'); 
   const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
 
-  // States cho Form chỉnh sửa
   const [editingSetId, setEditingSetId] = useState<number | string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editDesc, setEditDesc] = useState('');
@@ -362,5 +355,20 @@ export default function BoTuVungPage() {
         </Flex>
       )}
     </Box>
+  );
+}
+
+
+export default function BoTuVungPage() {
+  return (
+    <Suspense 
+      fallback={
+        <Flex w="100vw" h="100vh" align="center" justify="center" bg="#f8f9fa">
+          <Spinner size="xl" color="#58cc02" thickness="4px" />
+        </Flex>
+      }
+    >
+      <BoTuVungContent />
+    </Suspense>
   );
 }

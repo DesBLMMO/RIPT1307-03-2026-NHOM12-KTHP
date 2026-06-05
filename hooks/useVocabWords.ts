@@ -1,3 +1,4 @@
+"use client";
 // File: hooks/useVocabWords.ts
 import { useState, useEffect, useCallback } from 'react';
 import { vocabWordService, Word } from '@/lib/services/vocabWordService';

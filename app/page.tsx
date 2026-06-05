@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react'; 
 import { useVocabWords } from '@/hooks/useVocabWords';
@@ -28,7 +28,7 @@ interface CourseCategory {
   items: CourseItem[];
 }
 
-export default function HomePage() {
+function HomeContent()  {
   const router = useRouter(); 
   const { data: session, status } = useSession(); 
 
@@ -498,5 +498,18 @@ export default function HomePage() {
         @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
       `}} />
     </Box>
+  );
+}
+export default function HomePage() {
+  return (
+    <Suspense 
+      fallback={
+        <Flex w="100vw" h="100vh" align="center" justify="center" bg="#f8f9fa">
+          <Spinner size="xl" color="green.500" thickness="4px" />
+        </Flex>
+      }
+    >
+      <HomeContent />
+    </Suspense>
   );
 }
